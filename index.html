@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クリップアート品質チェック｜Clipart ToolKit Pro</title>
+<meta name="description" content="あなたのクリップアートのサイズ・DPI・余白・ゴミ・輪郭を今すぐ無料でチェック。画像はブラウザの外に一切送信しません。">
+<meta property="og:title" content="あなたのクリップアートの品質は大丈夫ですか？？">
+<meta property="og:description" content="DPI・余白・ゴミ・輪郭を、今すぐ無料でチェック。">
+<meta property="og:image" content="images/ogp.png">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:        #fff9fb;
+    --surface:   #ffffff;
+    --ink:       #4a3b42;
+    --ink-soft:  #8a7a82;
+    --brand:     #f5a6c4;
+    --brand-deep:#e97fa8;
+    --accent:    #b9a0e3;
+    --cream:     #fff2f6;
+    --line:      #f3dde5;
+    --radius:    20px;
+    --shadow:    0 8px 30px rgba(233,127,168,.15);
+    --maxw:      680px;
+    --ok:        #4caf7d;
+    --ok-bg:     #e8f7f0;
+    --warn:      #e0762f;
+    --warn-bg:   #fdf0e6;
+    --skip-bg:   #f2eef4;
+    --skip-ink:  #948a9c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,system-ui,sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.9;
+    font-size:16px; -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;height:auto;display:block}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  section{padding:52px 0}
+  h2{font-size:23px;line-height:1.5;text-align:center;margin-bottom:8px}
+  h2 .sub{display:block;font-size:13px;color:var(--brand-deep);letter-spacing:.1em;margin-bottom:6px;font-weight:700}
+  .lead{text-align:center;color:var(--ink-soft);margin-bottom:28px;font-size:14px}
+  p+p{margin-top:1em}
+
+  .cta{
+    display:block;width:100%;max-width:420px;margin:24px auto 0;
+    padding:18px 24px;text-align:center;text-decoration:none;
+    background:var(--brand-deep);color:#fff;font-weight:700;font-size:17px;
+    border-radius:999px;box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+    border:none;cursor:pointer;
+  }
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(233,127,168,.3)}
+  .cta small{display:block;font-weight:400;font-size:12px;opacity:.9;margin-top:2px}
+  .cta.ghost{background:#fff;color:var(--brand-deep);border:2px solid var(--brand);box-shadow:none}
+
+  /* ===== ヒーロー ===== */
+  .hero{
+    background:linear-gradient(180deg,var(--cream),var(--bg));
+    text-align:center;padding:44px 0 8px;
+  }
+  .hero .badge{
+    display:inline-block;background:#fff;color:var(--brand-deep);
+    border:1px solid var(--line);border-radius:999px;
+    padding:6px 16px;font-size:13px;font-weight:700;margin-bottom:16px;
+  }
+  .hero h1{font-size:26px;line-height:1.5;margin-bottom:12px}
+  .hero h1 .em{color:var(--brand-deep)}
+  .hero .hero-sub{color:var(--ink-soft);margin-bottom:8px;font-size:15px}
+
+  /* ===== 品質チェッカー本体 ===== */
+  .checker{background:var(--surface)}
+  .checker-box{
+    max-width:560px;margin:18px auto 0;background:var(--surface);
+    border:2px dashed var(--brand);border-radius:var(--radius);
+    padding:30px 18px;text-align:center;box-shadow:var(--shadow);
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .checker-box.drag{background:var(--cream);border-color:var(--brand-deep)}
+  .checker-box .icon{width:64px;margin:0 auto 8px}
+  .checker-box .dz-title{font-weight:700;font-size:15px;margin-bottom:4px}
+  .checker-box .dz-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px}
+  .checker-box input[type=file]{display:none}
+  .privacy-note{
+    max-width:560px;margin:12px auto 0;text-align:center;font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .privacy-note b{color:var(--brand-deep)}
+
+  .glossary{
+    max-width:560px;margin:14px auto 0;background:var(--cream);
+    border:1px solid var(--line);border-radius:14px;padding:4px 18px;
+  }
+  .glossary summary{cursor:pointer;padding:12px 0;font-weight:700;font-size:13.5px;color:var(--brand-deep);list-style:none;position:relative;padding-right:24px}
+  .glossary summary::-webkit-details-marker{display:none}
+  .glossary summary::after{content:"＋";position:absolute;right:0}
+  .glossary details[open] summary::after{content:"−"}
+  .glossary[open] summary::after{content:"−"}
+  .glossary ul{list-style:none;padding:0 0 14px;font-size:13px;color:var(--ink-soft);line-height:1.8}
+  .glossary li{margin-bottom:8px}
+  .glossary li b{color:var(--ink)}
+
+  .sample-preview{max-width:560px;margin:20px auto 0}
+  .sample-preview .cap{text-align:center;font-size:12px;color:var(--ink-soft);margin-bottom:8px}
+
+  .results{max-width:560px;margin:20px auto 0;display:flex;flex-direction:column;gap:12px}
+  .result-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    padding:14px 16px;display:flex;gap:12px;align-items:flex-start;text-align:left;
+  }
+  .result-card .thumb{
+    width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;
+    background:repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50%/12px 12px;
+  }
+  .result-card .name{font-size:13px;font-weight:700;word-break:break-all;margin-bottom:2px}
+  .result-card .fact{font-size:11.5px;color:var(--ink-soft);margin-bottom:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    display:inline-flex;align-items:center;gap:4px;
+    font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;
+  }
+  .chip.ok{background:var(--ok-bg);color:var(--ok)}
+  .chip.warn{background:var(--warn-bg);color:var(--warn)}
+  .chip.skip{background:var(--skip-bg);color:var(--skip-ink)}
+  .result-card.loading .fact{color:var(--brand-deep)}
+  .summary-line{
+    max-width:560px;margin:16px auto 0;text-align:center;font-size:13.5px;
+    font-weight:700;color:var(--ink);
+  }
+  .summary-line.has-warn{color:var(--warn)}
+
+  /* ===== PAIN ===== */
+  .pain{background:var(--cream)}
+  .pain ul{max-width:520px;margin:0 auto;list-style:none}
+  .pain li{
+    background:var(--surface);border-radius:14px;padding:14px 18px 14px 44px;
+    margin-bottom:12px;position:relative;font-size:14.5px;
+  }
+  .pain li::before{content:"";position:absolute;left:20px;top:22px;width:8px;height:8px;border-radius:50%;background:var(--brand-deep)}
+
+  /* ===== 知っていましたか？ファクトボックス ===== */
+  .fact{background:var(--cream);padding-top:0}
+  .fact-box{
+    max-width:520px;margin:0 auto;background:var(--surface);
+    border:1px solid var(--brand);border-radius:18px;padding:22px 20px;
+  }
+  .fact-badge{
+    display:inline-block;background:var(--brand-deep);color:#fff;
+    font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px;margin-bottom:10px;
+  }
+  .fact-box p{font-size:14px}
+  .fact-box strong{color:var(--brand-deep)}
+
+  /* ===== INSIGHT / bridge ===== */
+  .insight{background:var(--surface);text-align:center}
+  .insight .box{
+    max-width:520px;margin:0 auto;background:var(--cream);border-radius:18px;
+    padding:26px 22px;font-size:14.5px;
+  }
+  .insight .box strong{color:var(--brand-deep)}
+
+  /* ===== ベネフィット/3本柱 ===== */
+  .benefit{background:var(--cream)}
+  .benefit .row{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--surface);border-radius:16px;padding:18px;margin-bottom:14px;
+  }
+  .benefit .ico{width:44px;flex-shrink:0}
+  .benefit h3{font-size:16px;margin-bottom:2px}
+  .benefit p{font-size:13.5px;color:var(--ink-soft)}
+
+  /* ===== PROOF / USP ===== */
+  .proof{background:var(--surface);text-align:center}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .badges span{
+    background:var(--cream);border:1px solid var(--line);border-radius:999px;
+    padding:8px 16px;font-size:12.5px;font-weight:700;color:var(--brand-deep);
+  }
+
+  /* ===== FAQ ===== */
+  .faq details{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:4px 18px;margin-bottom:10px;
+  }
+  .faq summary{
+    cursor:pointer;padding:14px 0;font-weight:700;font-size:14.5px;
+    list-style:none;position:relative;padding-right:28px;
+  }
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"＋";position:absolute;right:0;color:var(--brand-deep)}
+  .faq details[open] summary::after{content:"−"}
+  .faq details p{padding:0 0 16px;font-size:13.5px;color:var(--ink-soft)}
+
+  .disclaimer{max-width:520px;margin:0 auto;font-size:11.5px;color:var(--ink-soft);text-align:center}
+
+  footer{background:var(--ink);color:#fff;text-align:center;padding:36px 20px;font-size:13px}
+  footer a{color:#fff;text-decoration:underline}
+  footer .license{max-width:520px;margin:0 auto 16px;color:#e9d7df;line-height:1.8;font-size:12px;text-align:left}
+
+  @media(min-width:600px){
+    .hero h1{font-size:30px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ①ヒーロー：ヘッドラインの直下がそのままチェッカー本体 -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Etsyでクリップアートを売っている方へ</span>
+    <h1>あなたのクリップアートの<br><span class="em">品質は大丈夫ですか？？</span></h1>
+    <p class="hero-sub">DPI・余白・ゴミ・輪郭を、今すぐ無料でチェック。</p>
+  </div>
+</header>
+
+<!-- ②実働する品質チェックツール -->
+<section class="checker" id="checker">
+  <div class="wrap">
+    <div class="checker-box" id="dropzone">
+      <img class="icon" src="images/icon-squirrel-scroll.png" alt="">
+      <div class="dz-title">ここに画像をドラッグ&ドロップ</div>
+      <div class="dz-sub">またはタップして選択（PNG / JPEG、複数枚OK）</div>
+      <label class="cta" for="fileInput" style="max-width:260px">画像を選んでチェックする</label>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg" multiple>
+    </div>
+    <p class="privacy-note">画像は<b>あなたのブラウザの中だけ</b>で解析されます。サーバーには一切送信されません。</p>
+
+    <details class="glossary">
+      <summary>この5つ、何をチェックしているの？</summary>
+      <ul>
+        <li><b>サイズ</b>：画像の大きさ。小さすぎると、印刷したときに粗く見えてしまいます。</li>
+        <li><b>DPI</b>：印刷したときのきめ細かさの指標。Etsyのクリップアートでは「300」が目安とされています。</li>
+        <li><b>余白</b>：イラストのまわりの透明なすき間。広すぎると、間延びした印象になります。</li>
+        <li><b>ゴミ</b>：背景を透明にしたときに、消し忘れて残ってしまう小さな点やノイズ。</li>
+        <li><b>輪郭</b>：イラストのフチのギザギザ。拡大すると、なめらかさの違いが目立ちます。</li>
+      </ul>
+    </details>
+
+    <div class="sample-preview" id="samplePreview">
+      <p class="cap">▼ こんな結果が見られます（サンプル）</p>
+      <div class="result-card">
+        <div class="thumb" style="background-image:url(images/icon-mouse-trunk.png);background-size:cover"></div>
+        <div style="flex:1">
+          <div class="name">sample_mouse.png</div>
+          <div class="fact">PNG・2400×2400px・96dpi・余白 22%</div>
+          <div class="chips">
+            <span class="chip warn">サイズ不足</span>
+            <span class="chip warn">96dpi</span>
+            <span class="chip warn">余白多め</span>
+            <span class="chip ok">ゴミなし</span>
+            <span class="chip warn">ギザつき 2箇所?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results" id="results"></div>
+    <p class="summary-line" id="summaryLine" hidden></p>
+  </div>
+</section>
+
+<!-- ③PAIN：共感（やや強め） -->
+<section class="pain">
+  <div class="wrap">
+    <h2><span class="sub">こんなこと、ありませんか？</span>ドキッとした方へ</h2>
+    <ul>
+      <li>納品したPNG、実は300dpiになっていないかも……とちょっと不安。</li>
+      <li>背景透過したはずが、拡大したら小さなゴミ・ノイズが残っていた。</li>
+      <li>拡大したら輪郭がガタガタ、白いフチ（ハロー）が浮いていた。</li>
+      <li>「見切れているかも？」と思いながら、なんとなく出品ボタンを押している。</li>
+      <li>そもそも自分の作業が合っているのか、誰にも確認してもらえない。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 実は…のファクトボックス：Etsy購入者保護制度の事実で危機感を裏付ける -->
+<section class="fact">
+  <div class="wrap">
+    <div class="fact-box">
+      <span class="fact-badge">知っていましたか？</span>
+      <p>Etsyの購入者保護制度では、デジタルダウンロード商品でも<strong>「説明と違う（届いたものが期待と異なる）」</strong>と判断されると返金の対象になります。</p>
+      <p>「デジタル商品だから返金はない」というのは思い込みで、サイズ違い・低解像度・見切れなどの<strong>技術的なミスも例外ではありません。</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ④INSIGHT：橋渡し -->
+<section class="insight">
+  <div class="wrap">
+    <h2><span class="sub">INSIGHT</span>本当は、誰かに確認してほしい</h2>
+    <div class="box">
+      <p>1枚ずつ目視でチェックするのは、想像以上に時間がかかります。</p>
+      <p>だから「たぶん大丈夫」のまま出品してしまう。<br>
+      でもその"たぶん"が、Etsyでのレビューやリピートに響くことがあります。実際、セラーの間でも「縮小・拡大するとクリップアートがぼやける／ガタつく」という声はよく聞かれます。</p>
+      <p><strong>上でチェックした5項目は、そのままClipart ToolKit Proが毎回自動でチェックしている項目</strong>です。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤SOLUTION：3本柱 -->
+<section class="benefit">
+  <div class="wrap">
+    <h2><span class="sub">SOLUTION</span>チェックした先まで、自動でやってくれる</h2>
+    <div class="row"><img class="ico" src="images/icon-ship-wheel.png" alt=""><div>
+      <h3>面倒な作業を、まるごとおまかせ</h3>
+      <p>アップロードするだけで「余白カット→拡大→背景透過」をまとめて自動処理。仕上がりは3000×3000pxにきっちり統一されます。並び替え・サムネイル・素材一覧シート・モックアップ・納品用PDFまで一通り自動生成。背景透過用・拡大用・デザイン用と、いくつものツールを行き来していた作業が、これ1つにまとまります。</p>
+    </div></div>
+    <div class="row"><img class="ico" src="images/icon-magnifier-map.png" alt=""><div>
+      <h3>「たぶん大丈夫」を、なくす</h3>
+      <p>ここでチェックした「サイズ・DPI・余白・ゴミ・輪郭」の5項目を、作業のたびに毎回自動でクリアさせます。DPIは300dpiにきっちり変換、透過部分の小さなゴミも自動検出。「たぶん大丈夫」で出品する不安を、仕組みごとなくします。</p>
+    </div></div>
+    <div class="row"><img class="ico" src="images/icon-fox-compass.png" alt=""><div>
+      <h3>売れてる形が、はじめから使える</h3>
+      <p>サムネイル・素材一覧シート・モックアップのテンプレートは、Etsyの実際のベストセラーを分析して設計されたもの。「なんとなく作る」のではなく、売れているショップと同じ土台からスタートできます。</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ⑥PROOF/USP -->
+<section class="proof">
+  <div class="wrap">
+    <h2><span class="sub">PROOF</span>作ったのは、実際にEtsyで売っている2人です</h2>
+    <div class="badges">
+      <span>現役Etsyセラーが開発</span>
+      <span>実際のベストセラーを分析</span>
+      <span>自分たちのショップでも使用中</span>
+    </div>
+    <a class="cta" href="https://app.cliparttoolkit.com/" target="_blank" rel="noopener">Clipart ToolKit Proを使ってみる</a>
+    <a class="cta ghost" href="https://cliparttoolkitpro.vercel.app/" target="_blank" rel="noopener">料金・機能をくわしく見る</a>
+  </div>
+</section>
+
+<!-- ⑦FAQ -->
+<section class="faq">
+  <div class="wrap">
+    <h2><span class="sub">FAQ</span>よくあるご質問</h2>
+    <details>
+      <summary>アップロードした画像はどこかに保存されますか？</summary>
+      <p>いいえ。この診断はすべてあなたのブラウザの中だけで処理されます。画像がサーバーに送信・保存されることは一切ありません。</p>
+    </details>
+    <details>
+      <summary>この判定はどのくらい正確ですか？</summary>
+      <p>サイズ・DPI・余白・輪郭のギザつきなどを、Etsy納品でよく使われる基準（長辺3000px・300dpiなど）で機械的にチェックする目安です。特に「輪郭のギザつき」は参考情報としてご利用ください。実際の出品可否や成果を保証するものではありません。</p>
+    </details>
+    <details>
+      <summary>「要チェック」が出たら、どうすればいいですか？</summary>
+      <p>Clipart ToolKit Proなら、ここでチェックした余白カット・拡大（DPI変換）・背景透過のゴミ取りなどを、アップロードするだけでまとめて自動処理できます。</p>
+    </details>
+    <details>
+      <summary>Clipart ToolKit Proって何ですか？</summary>
+      <p>Etsyでクリップアートを販売する方向けに、制作から納品までをまとめて自動化する月額ツールです。現役Etsyセラー2人(1人はエンジニア)で開発しています。</p>
+    </details>
+    <details>
+      <summary>デジタル商品でも返金になることがあるんですか？</summary>
+      <p>はい。Etsyの購入者保護制度では、デジタルダウンロードでも「説明と違う」と判断されると返金の対象になります。サイズ違いや解像度不足、見切れなどの技術的なミスも例外ではないため、出品前のセルフチェックが安心につながります。</p>
+    </details>
+  </div>
+</section>
+
+<!-- フッター -->
+<footer>
+  <img src="images/icon-hedgehog-map.png" alt="" style="width:56px;margin:0 auto 14px;opacity:.9">
+  <p class="license">
+    <strong>ご利用について</strong><br>
+    このページの品質チェック機能は、アップロードされた画像を解析のためだけにお使いのブラウザ内で一時的に処理します。画像データが外部に送信・保存されることはありません。判定結果は目安であり、正確な検品や成果を保証するものではありません。
+  </p>
+  <p>© <span id="y"></span> Clipart ToolKit Pro ／ <a href="https://cliparttoolkitpro.vercel.app" target="_blank" rel="noopener">サービス紹介ページ</a></p>
+</footer>
+
+<script>
+document.getElementById('y').textContent = new Date().getFullYear();
+
+/* ============================================================
+ * クリップアート品質チェック（ポート元: clipart-toolkit リポジトリ
+ * src/lib/deliveryCheck.ts + bgRemove.ts の findDebrisComponents）
+ * 修正・保存機能は含まない。判定のみを行う。
+ * 画像はこのページの外へ一切送信しない。
+ * ============================================================ */
+
+const OPAQUE_ALPHA_MIN = 11;
+
+const DEFAULT_CHECK_OPTIONS = {
+  minSizePx: 3000,
+  marginWarnRatio: 0.15,
+  targetDpi: 300,
+  enabled: { size: true, dpi: true, margin: true, debris: true, edge: true },
+};
+
+// ---- フォーマット判定 / DPI 読み取り ----
+function sniffFormat(bytes) {
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) return 'PNG';
+  if (bytes.length >= 2 && bytes[0] === 0xFF && bytes[1] === 0xD8) return 'JPEG';
+  if (bytes.length >= 12 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return 'WebP';
+  if (bytes.length >= 3 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) return 'GIF';
+  return '不明';
+}
+
+function readPngDpi(bytes) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let offset = 8;
+  while (offset + 12 <= bytes.length) {
+    const length = dv.getUint32(offset);
+    const t0 = bytes[offset + 4], t1 = bytes[offset + 5], t2 = bytes[offset + 6], t3 = bytes[offset + 7];
+    if (t0 === 0x70 && t1 === 0x48 && t2 === 0x59 && t3 === 0x73 && length >= 9) {
+      const ppuX = dv.getUint32(offset + 8);
+      const unit = bytes[offset + 16];
+      return unit === 1 ? Math.round(ppuX * 0.0254) : null;
+    }
+    if ((t0 === 0x49 && t1 === 0x44 && t2 === 0x41 && t3 === 0x54) ||
+        (t0 === 0x49 && t1 === 0x45 && t2 === 0x4E && t3 === 0x44)) break;
+    offset += 12 + length;
+  }
+  return null;
+}
+
+function readJpegDpi(bytes) {
+  let offset = 2;
+  while (offset + 4 <= bytes.length && bytes[offset] === 0xFF) {
+    const marker = bytes[offset + 1];
+    if (marker === 0xDA || marker === 0xD9) break;
+    const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    if (marker === 0xE0) {
+      const p = offset + 4;
+      const isJfif = p + 12 <= bytes.length &&
+        bytes[p] === 0x4A && bytes[p + 1] === 0x46 && bytes[p + 2] === 0x49 &&
+        bytes[p + 3] === 0x46 && bytes[p + 4] === 0x00;
+      if (isJfif) {
+        const units = bytes[p + 7];
+        const xDensity = (bytes[p + 8] << 8) | bytes[p + 9];
+        if (units === 1) return xDensity;
+        if (units === 2) return Math.round(xDensity * 2.54);
+        return null;
+      }
+    }
+    offset += 2 + length;
+  }
+  return null;
+}
+
+function readImageDpi(bytes) {
+  const format = sniffFormat(bytes);
+  if (format === 'PNG') return readPngDpi(bytes);
+  if (format === 'JPEG') return readJpegDpi(bytes);
+  return null;
+}
+
+// ---- 余白・透明度の解析 ----
+function scanAlpha(image) {
+  const { width, height, data } = image;
+  let hasTransparency = false;
+  let minX = width, maxX = -1, minY = height, maxY = -1;
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      const a = data[(row + x) * 4 + 3];
+      if (a < 255) hasTransparency = true;
+      if (a >= OPAQUE_ALPHA_MIN) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return { hasTransparency, margins: null };
+  return { hasTransparency, margins: { top: minY, right: width - 1 - maxX, bottom: height - 1 - maxY, left: minX } };
+}
+
+function marginTightnessRatio(m, longSide) {
+  const horiz = Math.max(m.left, m.right);
+  const vert = Math.max(m.top, m.bottom);
+  return Math.min(horiz, vert) / longSide;
+}
+
+const MARGIN_TOUCH_ALPHA_MIN = 128;
+const MARGIN_TOUCH_MIN_RUN_PX = 3;
+
+function detectEdgeTouch(image) {
+  const { width, height, data } = image;
+  const alphaAt = (x, y) => data[(y * width + x) * 4 + 3];
+  const hasSolidRun = (length, at) => {
+    let run = 0;
+    for (let i = 0; i < length; i++) {
+      if (at(i) >= MARGIN_TOUCH_ALPHA_MIN) { run++; if (run >= MARGIN_TOUCH_MIN_RUN_PX) return true; }
+      else run = 0;
+    }
+    return false;
+  };
+  return {
+    top: hasSolidRun(width, x => alphaAt(x, 0)),
+    bottom: hasSolidRun(width, x => alphaAt(x, height - 1)),
+    left: hasSolidRun(height, y => alphaAt(0, y)),
+    right: hasSolidRun(height, y => alphaAt(width - 1, y)),
+  };
+}
+
+// ---- 輪郭のギザつきチェック ----
+const EDGE_SOLID_ALPHA = 128, EDGE_MID_ALPHA_MIN = 25, EDGE_MID_ALPHA_MAX = 230;
+const EDGE_HARD_ALL_RATIO = 0.95, EDGE_MIN_OUTLINE_PX = 100, EDGE_SEGMENT_MIN_PX = 24;
+const EDGE_SEGMENT_MIN_SPAN = 4, EDGE_SEGMENT_MAX_COUNT = 50;
+const JAGGY_STEP_MIN_LEN = 3, JAGGY_STEP_MAX_LEN = 20, JAGGY_POS_JUMP_MIN = 0.75;
+
+function buildMarker(pixels, width) {
+  let sx = 0, sy = 0;
+  for (const idx of pixels) { const x = idx % width; sx += x; sy += (idx - x) / width; }
+  const cx = sx / pixels.length + 0.5, cy = sy / pixels.length + 0.5;
+  let maxDistSq = 0;
+  for (const idx of pixels) {
+    const x = idx % width; const dx = x + 0.5 - cx, dy = (idx - x) / width + 0.5 - cy;
+    const dSq = dx * dx + dy * dy; if (dSq > maxDistSq) maxDistSq = dSq;
+  }
+  return { cx, cy, radius: Math.sqrt(maxDistSq), area: pixels.length };
+}
+
+function analyzeEdgeJagginess(image) {
+  const { width, height, data } = image;
+  const len = width * height;
+  const alpha = new Uint8Array(len);
+  for (let i = 0; i < len; i++) alpha[i] = data[i * 4 + 3];
+  const alphaAt = i => alpha[i];
+
+  const isHard = new Uint8Array(len);
+  let outlinePx = 0, hardPx = 0;
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      const i = row + x;
+      if (alphaAt(i) < EDGE_SOLID_ALPHA) continue;
+      let onOutline = false, hasMidNeighbor = false;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const a = alphaAt(ny * width + nx);
+          if (a < EDGE_SOLID_ALPHA) onOutline = true;
+          if (a >= EDGE_MID_ALPHA_MIN && a <= EDGE_MID_ALPHA_MAX) hasMidNeighbor = true;
+        }
+      }
+      if (!onOutline) continue;
+      outlinePx++;
+      if (!hasMidNeighbor) { isHard[i] = 1; hardPx++; }
+    }
+  }
+
+  const solid = (x, y) => x >= 0 && x < width && y >= 0 && y < height && alphaAt(y * width + x) >= EDGE_SOLID_ALPHA;
+  const crossH = (x, y, dir) => {
+    if (x < 0 || x >= width || y < 0 || y >= height || y + dir < 0 || y + dir >= height) return null;
+    const aS = alphaAt(y * width + x), aT = alphaAt((y + dir) * width + x);
+    if (aS < EDGE_SOLID_ALPHA || aT >= EDGE_SOLID_ALPHA) return null;
+    return y + dir * ((aS - EDGE_SOLID_ALPHA) / Math.max(1, aS - aT));
+  };
+  const crossV = (x, y, dir) => {
+    if (x < 0 || x >= width || y < 0 || y >= height || x + dir < 0 || x + dir >= width) return null;
+    const aS = alphaAt(y * width + x), aT = alphaAt(y * width + x + dir);
+    if (aS < EDGE_SOLID_ALPHA || aT >= EDGE_SOLID_ALPHA) return null;
+    return x + dir * ((aS - EDGE_SOLID_ALPHA) / Math.max(1, aS - aT));
+  };
+
+  const candH = new Uint8Array(len), candV = new Uint8Array(len);
+  const runsH = [], runsV = [];
+  for (const dir of [1, -1]) {
+    for (let y = 0; y < height; y++) {
+      if (y + dir < 0 || y + dir >= height) continue;
+      const isStep = x => solid(x, y) && !solid(x, y + dir);
+      let x = 0;
+      while (x < width) {
+        if (!isStep(x)) { x++; continue; }
+        const x0 = x; while (x < width && isStep(x)) x++;
+        const x1 = x - 1; const L = x1 - x0 + 1;
+        if (L < JAGGY_STEP_MIN_LEN || L > JAGGY_STEP_MAX_LEN) continue;
+        runsH.push({ y, x0, x1, dir });
+        for (let xx = x0; xx <= x1; xx++) candH[y * width + xx] = 1;
+      }
+    }
+    for (let x = 0; x < width; x++) {
+      if (x + dir < 0 || x + dir >= width) continue;
+      const isStep = y => solid(x, y) && !solid(x + dir, y);
+      let y = 0;
+      while (y < height) {
+        if (!isStep(y)) { y++; continue; }
+        const y0 = y; while (y < height && isStep(y)) y++;
+        const y1 = y - 1; const L = y1 - y0 + 1;
+        if (L < JAGGY_STEP_MIN_LEN || L > JAGGY_STEP_MAX_LEN) continue;
+        runsV.push({ x, y0, y1, dir });
+        for (let yy = y0; yy <= y1; yy++) candV[yy * width + x] = 1;
+      }
+    }
+  }
+  const at = (m, x, y) => x >= 0 && x < width && y >= 0 && y < height && m[y * width + x] === 1;
+
+  for (const r of runsH) {
+    let ok = true;
+    for (const [xe, out] of [[r.x0, -1], [r.x1, 1]]) {
+      let good = false;
+      if (at(candH, xe + out, r.y - 1) || at(candH, xe + out, r.y + 1)) {
+        const p = crossH(xe, r.y, r.dir);
+        const pnA = crossH(xe + out, r.y - 1, r.dir);
+        const pn = pnA !== null ? pnA : crossH(xe + out, r.y + 1, r.dir);
+        good = p !== null && pn !== null && Math.abs(p - pn) >= JAGGY_POS_JUMP_MIN;
+      }
+      if (!good) {
+        good = at(candV, xe, r.y - 1) || at(candV, xe, r.y + 1) ||
+               at(candV, xe + out, r.y - 1) || at(candV, xe + out, r.y + 1) || at(candV, xe + out, r.y);
+      }
+      if (!good) { ok = false; break; }
+    }
+    if (ok) for (let xx = r.x0; xx <= r.x1; xx++) isHard[r.y * width + xx] = 1;
+  }
+  for (const r of runsV) {
+    let ok = true;
+    for (const [ye, out] of [[r.y0, -1], [r.y1, 1]]) {
+      let good = false;
+      if (at(candV, r.x - 1, ye + out) || at(candV, r.x + 1, ye + out)) {
+        const p = crossV(r.x, ye, r.dir);
+        const pnA = crossV(r.x - 1, ye + out, r.dir);
+        const pn = pnA !== null ? pnA : crossV(r.x + 1, ye + out, r.dir);
+        good = p !== null && pn !== null && Math.abs(p - pn) >= JAGGY_POS_JUMP_MIN;
+      }
+      if (!good) {
+        good = at(candH, r.x - 1, ye) || at(candH, r.x + 1, ye) ||
+               at(candH, r.x - 1, ye + out) || at(candH, r.x + 1, ye + out) || at(candH, r.x, ye + out);
+      }
+      if (!good) { ok = false; break; }
+    }
+    if (ok) for (let yy = r.y0; yy <= r.y1; yy++) isHard[yy * width + r.x] = 1;
+  }
+
+  const segments = [];
+  const visited = new Uint8Array(len);
+  for (let start = 0; start < len; start++) {
+    if (!isHard[start] || visited[start]) continue;
+    const pixels = [start]; visited[start] = 1; let head = 0;
+    let minX = width, maxX = 0, minY = height, maxY = 0;
+    while (head < pixels.length) {
+      const idx = pixels[head++];
+      const x = idx % width, y = (idx - x) / width;
+      if (x < minX) minX = x; if (x > maxX) maxX = x;
+      if (y < minY) minY = y; if (y > maxY) maxY = y;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const nIdx = ny * width + nx;
+          if (!isHard[nIdx] || visited[nIdx]) continue;
+          visited[nIdx] = 1; pixels.push(nIdx);
+        }
+      }
+    }
+    if (pixels.length < EDGE_SEGMENT_MIN_PX) continue;
+    if (Math.min(maxX - minX + 1, maxY - minY + 1) < EDGE_SEGMENT_MIN_SPAN) continue;
+    segments.push(buildMarker(pixels, width));
+  }
+  segments.sort((a, b) => b.area - a.area);
+
+  return {
+    outlinePx, hardPx,
+    hardRatio: outlinePx > 0 ? hardPx / outlinePx : 0,
+    segments: segments.slice(0, EDGE_SEGMENT_MAX_COUNT),
+  };
+}
+
+function judgeEdge(edge) {
+  if (edge.outlinePx >= EDGE_MIN_OUTLINE_PX && edge.hardRatio >= EDGE_HARD_ALL_RATIO) return 'warn';
+  return edge.segments.length > 0 ? 'warn' : 'ok';
+}
+
+// ---- 透過部分の小さなゴミ検出（findDebrisComponents 移植） ----
+const DEBRIS_KEEP_MIN_AREA_PX = 64, DEBRIS_KEEP_AREA_LONG_SIDE_RATIO = 0.005;
+const DEBRIS_THIN_MAX_DEPTH = 2, DEBRIS_THIN_CHECK_MIN_AREA_CAP = 4096, DEBRIS_THIN_CHECK_AREA_SCALE = 16;
+const DEBRIS_ISOLATION_GAP_PX = 2, DEBRIS_SLIVER_MIN_ELONGATION = 8;
+const DEBRIS_SPUR_NECK_PX = 2, DEBRIS_SPUR_MIN_AREA_PX = 6, DEBRIS_SPUR_MAX_PARENT_FRACTION = 0.5;
+const DEBRIS_MIN_OPAQUE_ALPHA = 16;
+
+function buildDebrisComponent(pixels, width) {
+  let sx = 0, sy = 0;
+  for (const idx of pixels) { const x = idx % width; sx += x; sy += (idx - x) / width; }
+  const cx = sx / pixels.length + 0.5, cy = sy / pixels.length + 0.5;
+  let maxDistSq = 0;
+  for (const idx of pixels) {
+    const x = idx % width; const dx = x + 0.5 - cx, dy = (idx - x) / width + 0.5 - cy;
+    const dSq = dx * dx + dy * dy; if (dSq > maxDistSq) maxDistSq = dSq;
+  }
+  return { pixels, cx, cy, radius: Math.sqrt(maxDistSq), area: pixels.length };
+}
+
+function measureThinness(pixels, label, own, width, height, maxDepthCap) {
+  if (maxDepthCap === undefined) maxDepthCap = DEBRIS_THIN_MAX_DEPTH;
+  const depth = new Map();
+  let frontier = [];
+  for (const idx of pixels) {
+    const x = idx % width, y = (idx - x) / width;
+    let onBoundary = false;
+    for (let dy = -1; dy <= 1 && !onBoundary; dy++) {
+      const ny = y + dy;
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nx = x + dx;
+        if (nx < 0 || nx >= width || ny < 0 || ny >= height || label[ny * width + nx] !== own) { onBoundary = true; break; }
+      }
+    }
+    if (onBoundary) { depth.set(idx, 1); frontier.push(idx); }
+  }
+  let reached = frontier.length;
+  let maxDepth = frontier.length > 0 ? 1 : 0;
+  for (let d = 2; d <= maxDepthCap && frontier.length > 0; d++) {
+    const next = [];
+    for (const idx of frontier) {
+      const x = idx % width, y = (idx - x) / width;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const nIdx = ny * width + nx;
+          if (label[nIdx] !== own || depth.has(nIdx)) continue;
+          depth.set(nIdx, d); next.push(nIdx); reached++; maxDepth = d;
+        }
+      }
+    }
+    frontier = next;
+  }
+  return { thin: reached === pixels.length, maxDepth };
+}
+
+function isIsolatedFromKept(pixels, label, isCandidate, width, height) {
+  const visited = new Set();
+  let frontier = pixels;
+  for (let step = 0; step < DEBRIS_ISOLATION_GAP_PX; step++) {
+    const next = [];
+    for (const idx of frontier) {
+      const x = idx % width, y = (idx - x) / width;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const nIdx = ny * width + nx;
+          const l = label[nIdx];
+          if (l) { if (!isCandidate[l]) return false; continue; }
+          if (visited.has(nIdx)) continue;
+          visited.add(nIdx); next.push(nIdx);
+        }
+      }
+    }
+    frontier = next;
+  }
+  return true;
+}
+
+function findDebrisComponents(image) {
+  const { width, height, data } = image;
+  const len = width * height;
+
+  const label = new Int32Array(len);
+  const areas = [0];
+  const queue = [];
+  for (let start = 0; start < len; start++) {
+    if (label[start] || data[start * 4 + 3] < DEBRIS_MIN_OPAQUE_ALPHA) continue;
+    const l = areas.length;
+    label[start] = l; queue.length = 0; queue.push(start);
+    let area = 0, head = 0;
+    while (head < queue.length) {
+      const idx = queue[head++]; area++;
+      const x = idx % width, y = (idx - x) / width;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const nIdx = ny * width + nx;
+          if (label[nIdx] || data[nIdx * 4 + 3] < DEBRIS_MIN_OPAQUE_ALPHA) continue;
+          label[nIdx] = l; queue.push(nIdx);
+        }
+      }
+    }
+    areas.push(area);
+  }
+  const labelCount = areas.length - 1;
+  if (labelCount === 0) return [];
+
+  const minKeepArea = Math.max(DEBRIS_KEEP_MIN_AREA_PX, Math.round(Math.pow(Math.max(width, height) * DEBRIS_KEEP_AREA_LONG_SIDE_RATIO, 2)));
+  const thinCheckMaxArea = Math.max(DEBRIS_THIN_CHECK_MIN_AREA_CAP, minKeepArea * DEBRIS_THIN_CHECK_AREA_SCALE);
+
+  const pixelsByLabel = new Map();
+  for (let l = 1; l <= labelCount; l++) { if (areas[l] <= thinCheckMaxArea) pixelsByLabel.set(l, []); }
+  if (pixelsByLabel.size > 0) {
+    for (let i = 0; i < len; i++) { const l = label[i]; if (l && pixelsByLabel.has(l)) pixelsByLabel.get(l).push(i); }
+  }
+
+  const isCandidate = new Uint8Array(labelCount + 1);
+  const thinness = new Map();
+  for (const [l, pixels] of pixelsByLabel) {
+    const m = measureThinness(pixels, label, l, width, height);
+    if (areas[l] < minKeepArea || m.thin) { isCandidate[l] = 1; thinness.set(l, m); }
+    else pixelsByLabel.delete(l);
+  }
+
+  let hasKept = false;
+  for (let l = 1; l <= labelCount; l++) { if (!isCandidate[l]) { hasKept = true; break; } }
+  if (!hasKept) {
+    let largest = 0;
+    for (let l = 1; l <= labelCount; l++) { if (!largest || areas[l] > areas[largest]) largest = l; }
+    isCandidate[largest] = 0;
+    pixelsByLabel.delete(largest);
+  }
+
+  const result = [];
+  for (const [l, pixels] of pixelsByLabel) {
+    if (!isCandidate[l]) continue;
+    const m = thinness.get(l);
+    const slender = m.thin && pixels.length >= DEBRIS_SLIVER_MIN_ELONGATION * m.maxDepth * m.maxDepth;
+    if (!slender && !isIsolatedFromKept(pixels, label, isCandidate, width, height)) continue;
+    result.push(buildDebrisComponent(pixels, width));
+  }
+
+  const edgeMark = new Uint8Array(len);
+  const edgePixels = [];
+  for (let i = 0; i < len; i++) {
+    const l = label[i];
+    if (!l || isCandidate[l]) continue;
+    const x = i % width, y = (i - x) / width;
+    let onEdge = false;
+    for (let dy = -1; dy <= 1 && !onEdge; dy++) {
+      const ny = y + dy;
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nx = x + dx;
+        if (nx < 0 || nx >= width || ny < 0 || ny >= height || data[(ny * width + nx) * 4 + 3] < DEBRIS_MIN_OPAQUE_ALPHA) { onEdge = true; break; }
+      }
+    }
+    edgeMark[i] = onEdge ? 1 : 2;
+    if (onEdge) edgePixels.push(i);
+  }
+
+  const guarded = new Uint8Array(len);
+  let spurFrontier = [];
+  for (const idx of edgePixels) {
+    const x = idx % width, y = (idx - x) / width;
+    let nearThick = false;
+    for (let dy = -1; dy <= 1 && !nearThick; dy++) {
+      const ny = y + dy; if (ny < 0 || ny >= height) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nx = x + dx; if (nx < 0 || nx >= width) continue;
+        if (edgeMark[ny * width + nx] === 2) { nearThick = true; break; }
+      }
+    }
+    if (nearThick) { guarded[idx] = 1; spurFrontier.push(idx); }
+  }
+  for (let step = 2; step <= DEBRIS_SPUR_NECK_PX && spurFrontier.length > 0; step++) {
+    const next = [];
+    for (const idx of spurFrontier) {
+      const x = idx % width, y = (idx - x) / width;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const nIdx = ny * width + nx;
+          if (edgeMark[nIdx] !== 1 || guarded[nIdx]) continue;
+          guarded[nIdx] = 1; next.push(nIdx);
+        }
+      }
+    }
+    spurFrontier = next;
+  }
+
+  for (const start of edgePixels) {
+    if (guarded[start]) continue;
+    const spur = [start]; guarded[start] = 1; let head = 0;
+    while (head < spur.length) {
+      const idx = spur[head++];
+      const x = idx % width, y = (idx - x) / width;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy; if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx; if (nx < 0 || nx >= width) continue;
+          const nIdx = ny * width + nx;
+          if (edgeMark[nIdx] !== 1 || guarded[nIdx]) continue;
+          guarded[nIdx] = 1; spur.push(nIdx);
+        }
+      }
+    }
+    if (spur.length < DEBRIS_SPUR_MIN_AREA_PX) continue;
+    if (spur.length >= areas[label[start]] * DEBRIS_SPUR_MAX_PARENT_FRACTION) continue;
+    result.push(buildDebrisComponent(spur, width));
+  }
+
+  result.sort((a, b) => b.area - a.area);
+  return result;
+}
+
+// ---- メイン解析 ----
+function analyzeImageData(fileName, bytes, imageData, options) {
+  const format = sniffFormat(bytes);
+  const dpi = readImageDpi(bytes);
+  const width = imageData.width, height = imageData.height;
+  const en = options.enabled;
+
+  const alphaScan = scanAlpha(imageData);
+  const hasTransparency = alphaScan.hasTransparency, margins = alphaScan.margins;
+  const isEmpty = margins === null;
+
+  const debris = (en.debris && hasTransparency && !isEmpty)
+    ? findDebrisComponents(imageData).map(d => ({ cx: d.cx, cy: d.cy, radius: d.radius, area: d.area }))
+    : [];
+
+  const edge = (en.edge && hasTransparency && !isEmpty) ? analyzeEdgeJagginess(imageData) : null;
+
+  const sizeVerdict = (!en.size || options.minSizePx <= 0) ? 'skip'
+    : (Math.max(width, height) < options.minSizePx ? 'warn' : 'ok');
+
+  const dpiVerdict = !en.dpi ? 'skip' : (dpi === options.targetDpi ? 'ok' : 'warn');
+
+  let marginVerdict, edgeTouch = null;
+  if (!en.margin) marginVerdict = 'skip';
+  else if (!hasTransparency) marginVerdict = 'skip';
+  else if (isEmpty) marginVerdict = 'warn';
+  else {
+    const m = margins;
+    const longSide = Math.max(width, height);
+    const tooWide = marginTightnessRatio(m, longSide) > options.marginWarnRatio;
+    edgeTouch = detectEdgeTouch(imageData);
+    const touchesEdge = edgeTouch.left || edgeTouch.right || edgeTouch.top || edgeTouch.bottom;
+    marginVerdict = (tooWide || touchesEdge) ? 'warn' : 'ok';
+  }
+
+  const debrisVerdict = (!en.debris || !hasTransparency || isEmpty) ? 'skip' : (debris.length > 0 ? 'warn' : 'ok');
+  const edgeVerdict = edge === null ? 'skip' : judgeEdge(edge);
+
+  const verdicts = { size: sizeVerdict, dpi: dpiVerdict, margin: marginVerdict, debris: debrisVerdict, edge: edgeVerdict };
+
+  return {
+    fileName, format, width, height, hasTransparency, isEmpty, dpi, margins, edgeTouch, debris, edge,
+    verdicts, enabled: Object.assign({}, en),
+    hasWarning: Object.values(verdicts).includes('warn'),
+  };
+}
+
+function loadImageElement(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('画像を読み込めませんでした')); };
+    img.src = url;
+  });
+}
+
+async function analyzeImageFile(file, options) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const img = await loadImageElement(file);
+  const width = img.width, height = img.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0);
+  const imageData = ctx.getImageData(0, 0, width, height);
+  canvas.width = 0; canvas.height = 0;
+  return analyzeImageData(file.name, bytes, imageData, options);
+}
+
+// ---- 表示用ヘルパー ----
+function buildChips(r) {
+  const chips = [];
+  const en = r.enabled;
+  if (en.size) chips.push({ verdict: r.verdicts.size, text: r.verdicts.size === 'warn' ? 'サイズ不足' : r.verdicts.size === 'skip' ? 'サイズ未チェック' : 'サイズOK' });
+  if (en.dpi) chips.push({ verdict: r.verdicts.dpi, text: r.dpi === null ? 'DPI未設定' : (r.dpi + 'dpi') });
+  if (en.margin) {
+    if (r.verdicts.margin === 'skip') chips.push({ verdict: 'skip', text: '透過なし' });
+    else if (r.isEmpty) chips.push({ verdict: 'warn', text: '画像が空?' });
+    else {
+      const et = r.edgeTouch;
+      const touchesEdge = !!et && (et.left || et.right || et.top || et.bottom);
+      chips.push({ verdict: r.verdicts.margin, text: r.verdicts.margin === 'warn' ? (touchesEdge ? '見切れ?' : '余白多め') : '余白OK' });
+    }
+  }
+  if (en.debris) {
+    if (r.verdicts.debris === 'skip') chips.push({ verdict: 'skip', text: 'ゴミ未チェック' });
+    else chips.push({ verdict: r.verdicts.debris, text: r.debris.length > 0 ? ('ゴミ ' + r.debris.length + '個') : 'ゴミなし' });
+  }
+  if (r.verdicts.edge !== 'skip' && r.edge) {
+    chips.push({ verdict: r.verdicts.edge, text: r.verdicts.edge === 'warn' ? (r.edge.segments.length > 0 ? ('ギザつき ' + r.edge.segments.length + '箇所?') : '輪郭のギザつき?') : '輪郭OK' });
+  }
+  return chips;
+}
+
+const EDGE_TOUCH_SIDE_LABEL = { top: '上', right: '右', bottom: '下', left: '左' };
+
+function buildFactLine(r) {
+  const parts = [r.format, r.width + '×' + r.height + 'px', r.dpi === null ? 'DPI未設定' : (r.dpi + 'dpi')];
+  if (r.enabled.margin && r.margins && !r.isEmpty) {
+    const touchedSides = r.edgeTouch ? Object.keys(EDGE_TOUCH_SIDE_LABEL).filter(s => r.edgeTouch[s]) : [];
+    if (touchedSides.length > 0) parts.push(touchedSides.map(s => EDGE_TOUCH_SIDE_LABEL[s]).join('・') + '端に到達');
+    else {
+      const longSide = Math.max(r.width, r.height);
+      parts.push('余白 ' + Math.round(marginTightnessRatio(r.margins, longSide) * 100) + '%');
+    }
+  }
+  return parts.join('・');
+}
+
+// ---- Web Worker 並列実行プール（checkPool.ts / checkWorker.ts 相当） ----
+// 大きい画像を複数枚アップロードしてもメインスレッドを固めないよう、
+// 対応環境では Worker で並列解析する。非対応環境はメインスレッド直列にフォールバック
+// （analyzeImageFile を1枚ずつ・結果は完全に同一）。
+
+function canUseWorkerPool() {
+  return (
+    typeof Worker !== 'undefined' &&
+    typeof OffscreenCanvas !== 'undefined' &&
+    typeof createImageBitmap === 'function'
+  );
+}
+
+function recommendedPoolSize() {
+  const cores = navigator.hardwareConcurrency || 4;
+  const mem = navigator.deviceMemory;
+  let n = Math.min(cores - 1, 4);
+  if (mem && mem <= 4) n = Math.min(n, 2);
+  return Math.max(1, n);
+}
+
+let checkWorkerUrl = null;
+function getCheckWorkerUrl() {
+  if (checkWorkerUrl) return checkWorkerUrl;
+  // 解析関数は上ですでに定義済みのものをそのまま文字列化して Worker スクリプトに埋め込む
+  // （二重管理を避け、メインスレッド版と1バイトも違わないロジックにするため）。
+  const fns = [
+    sniffFormat, readPngDpi, readJpegDpi, readImageDpi,
+    scanAlpha, marginTightnessRatio, detectEdgeTouch,
+    buildMarker, analyzeEdgeJagginess, judgeEdge,
+    buildDebrisComponent, measureThinness, isIsolatedFromKept, findDebrisComponents,
+    analyzeImageData,
+  ];
+  const constants = [
+    'const OPAQUE_ALPHA_MIN = 11;',
+    'const MARGIN_TOUCH_ALPHA_MIN = 128;',
+    'const MARGIN_TOUCH_MIN_RUN_PX = 3;',
+    'const EDGE_SOLID_ALPHA = 128, EDGE_MID_ALPHA_MIN = 25, EDGE_MID_ALPHA_MAX = 230;',
+    'const EDGE_HARD_ALL_RATIO = 0.95, EDGE_MIN_OUTLINE_PX = 100, EDGE_SEGMENT_MIN_PX = 24;',
+    'const EDGE_SEGMENT_MIN_SPAN = 4, EDGE_SEGMENT_MAX_COUNT = 50;',
+    'const JAGGY_STEP_MIN_LEN = 3, JAGGY_STEP_MAX_LEN = 20, JAGGY_POS_JUMP_MIN = 0.75;',
+    'const DEBRIS_KEEP_MIN_AREA_PX = 64, DEBRIS_KEEP_AREA_LONG_SIDE_RATIO = 0.005;',
+    'const DEBRIS_THIN_MAX_DEPTH = 2, DEBRIS_THIN_CHECK_MIN_AREA_CAP = 4096, DEBRIS_THIN_CHECK_AREA_SCALE = 16;',
+    'const DEBRIS_ISOLATION_GAP_PX = 2, DEBRIS_SLIVER_MIN_ELONGATION = 8;',
+    'const DEBRIS_SPUR_NECK_PX = 2, DEBRIS_SPUR_MIN_AREA_PX = 6, DEBRIS_SPUR_MAX_PARENT_FRACTION = 0.5;',
+    'const DEBRIS_MIN_OPAQUE_ALPHA = 16;',
+  ].join('\n');
+  const entry = [
+    'self.onmessage = async (e) => {',
+    '  const { id, file, options } = e.data;',
+    '  try {',
+    '    const bytes = new Uint8Array(await file.arrayBuffer());',
+    "    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });",
+    '    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);',
+    "    const ctx = canvas.getContext('2d', { willReadFrequently: true });",
+    '    ctx.drawImage(bitmap, 0, 0);',
+    '    const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);',
+    '    bitmap.close();',
+    '    const result = analyzeImageData(file.name, bytes, imageData, options);',
+    '    self.postMessage({ id, result });',
+    '  } catch (err) {',
+    "    self.postMessage({ id, error: err instanceof Error ? (err.name + ': ' + err.message) : String(err) });",
+    '  }',
+    '};',
+  ].join('\n');
+  const body = constants + '\n\n' + fns.map(f => f.toString()).join('\n\n') + '\n\n' + entry;
+  const blob = new Blob([body], { type: 'application/javascript' });
+  checkWorkerUrl = URL.createObjectURL(blob);
+  return checkWorkerUrl;
+}
+
+function runWithWorkerPool(tasks, options, onOne) {
+  return new Promise(resolve => {
+    const total = tasks.length;
+    const size = Math.max(1, Math.min(recommendedPoolSize(), total));
+    let next = 0, completed = 0;
+    const workers = new Set();
+    const inflight = new Map();
+    const url = getCheckWorkerUrl();
+
+    const done = () => { for (const w of workers) w.terminate(); workers.clear(); resolve(); };
+    const dispatch = worker => {
+      if (next >= total) return;
+      const task = tasks[next++];
+      inflight.set(worker, task.id);
+      worker.postMessage({ id: task.id, file: task.file, options });
+    };
+    const spawn = () => {
+      const worker = new Worker(url);
+      worker.onmessage = e => {
+        inflight.delete(worker);
+        const { id, result, error } = e.data;
+        onOne(result ? { id, result } : { id, error: error || '読み込みエラー' });
+        completed++;
+        if (completed >= total) return done();
+        dispatch(worker);
+      };
+      worker.onerror = () => {
+        const id = inflight.get(worker);
+        inflight.delete(worker);
+        worker.terminate();
+        workers.delete(worker);
+        if (id !== undefined) {
+          onOne({ id, error: '読み込みエラー' });
+          completed++;
+          if (completed >= total) return done();
+        }
+        if (next < total) {
+          const replacement = spawn();
+          workers.add(replacement);
+          dispatch(replacement);
+        }
+      };
+      return worker;
+    };
+    for (let i = 0; i < size; i++) {
+      const worker = spawn();
+      workers.add(worker);
+      dispatch(worker);
+    }
+  });
+}
+
+async function runMainThreadFallback(tasks, options, onOne) {
+  for (const task of tasks) {
+    try {
+      const result = await analyzeImageFile(task.file, options);
+      onOne({ id: task.id, result });
+    } catch (err) {
+      onOne({ id: task.id, error: err instanceof Error ? (err.name + ': ' + err.message) : '読み込みエラー' });
+    }
+    await new Promise(r => setTimeout(r, tasks.length > 20 ? 50 : 20));
+  }
+}
+
+async function runChecks(tasks, options, onOne) {
+  if (tasks.length === 0) return;
+  if (!canUseWorkerPool()) return runMainThreadFallback(tasks, options, onOne);
+  return runWithWorkerPool(tasks, options, onOne);
+}
+
+// ============================================================
+// UI配線
+// ============================================================
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const resultsEl = document.getElementById('results');
+const samplePreview = document.getElementById('samplePreview');
+const summaryLine = document.getElementById('summaryLine');
+
+function makeCard(fileName) {
+  const card = document.createElement('div');
+  card.className = 'result-card loading';
+  card.innerHTML =
+    '<div class="thumb"></div>' +
+    '<div style="flex:1">' +
+      '<div class="name"></div>' +
+      '<div class="fact">解析中…</div>' +
+      '<div class="chips"></div>' +
+    '</div>';
+  card.querySelector('.name').textContent = fileName;
+  return card;
+}
+
+function renderResult(card, thumbUrl, result, errorText) {
+  card.classList.remove('loading');
+  const thumb = card.querySelector('.thumb');
+  if (thumbUrl) { thumb.style.backgroundImage = 'url(' + thumbUrl + ')'; thumb.style.backgroundSize = 'cover'; thumb.style.backgroundPosition = 'center'; }
+  const factEl = card.querySelector('.fact');
+  const chipsEl = card.querySelector('.chips');
+  if (errorText) {
+    factEl.textContent = errorText;
+    return;
+  }
+  factEl.textContent = buildFactLine(result);
+  chipsEl.innerHTML = '';
+  for (const chip of buildChips(result)) {
+    const span = document.createElement('span');
+    span.className = 'chip ' + chip.verdict;
+    span.textContent = chip.text;
+    chipsEl.appendChild(span);
+  }
+}
+
+let totalWarnFiles = 0;
+let totalFiles = 0;
+let taskSeq = 0;
+
+async function handleFiles(fileList) {
+  const files = Array.from(fileList).filter(f => f.type === 'image/png' || f.type === 'image/jpeg');
+  if (files.length === 0) return;
+  samplePreview.hidden = true;
+  summaryLine.hidden = true;
+
+  const cardById = new Map();
+  const tasks = [];
+  for (const file of files) {
+    const id = 'f' + (taskSeq++);
+    const card = makeCard(file.name);
+    resultsEl.appendChild(card);
+    cardById.set(id, { card, thumbUrl: URL.createObjectURL(file) });
+    tasks.push({ id, file });
+  }
+  totalFiles += tasks.length;
+
+  await runChecks(tasks, DEFAULT_CHECK_OPTIONS, outcome => {
+    const { card, thumbUrl } = cardById.get(outcome.id);
+    if (outcome.result) {
+      renderResult(card, thumbUrl, outcome.result, null);
+      if (outcome.result.hasWarning) totalWarnFiles++;
+    } else {
+      renderResult(card, thumbUrl, null, '読み込みエラー：この画像は解析できませんでした');
+    }
+  });
+
+  summaryLine.hidden = false;
+  if (totalWarnFiles > 0) {
+    summaryLine.classList.add('has-warn');
+    summaryLine.textContent = totalFiles + '枚中 ' + totalWarnFiles + '枚に、要チェックの項目がありました。';
+  } else {
+    summaryLine.classList.remove('has-warn');
+    summaryLine.textContent = totalFiles + '枚とも、主要項目はOKでした。';
+  }
+}
+
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+['dragenter', 'dragover'].forEach(evt => {
+  dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); });
+});
+['dragleave', 'drop'].forEach(evt => {
+  dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); });
+});
+dropzone.addEventListener('drop', e => {
+  if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+});
+</script>
+</body>
+</html>
