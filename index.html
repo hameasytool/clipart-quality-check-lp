@@ -132,6 +132,19 @@
   }
   .summary-line.has-warn{color:var(--warn)}
 
+  @keyframes popIn{
+    0%{transform:scale(.8);opacity:0}
+    60%{transform:scale(1.04);opacity:1}
+    100%{transform:scale(1)}
+  }
+  .promo-pop{
+    max-width:560px;margin:16px auto 0;background:var(--surface);
+    border:2px solid var(--brand);border-radius:18px;padding:20px 22px;
+    text-align:center;box-shadow:var(--shadow);
+  }
+  .promo-pop.pop{animation:popIn .45s cubic-bezier(.34,1.56,.64,1)}
+  .promo-msg{font-size:14px;font-weight:700;margin-bottom:4px}
+
   /* ===== PAIN ===== */
   .pain{background:var(--cream)}
   .pain ul{max-width:520px;margin:0 auto;list-style:none}
@@ -259,6 +272,11 @@
 
     <div class="results" id="results"></div>
     <p class="summary-line" id="summaryLine" hidden></p>
+
+    <div class="promo-pop" id="promoPop" hidden>
+      <p class="promo-msg" id="promoMsg"></p>
+      <a class="cta" id="promoCta" href="https://app.cliparttoolkit.com/" target="_blank" rel="noopener">Clipart ToolKit Proを見てみる</a>
+    </div>
   </div>
 </section>
 
@@ -1155,6 +1173,8 @@ const fileInput = document.getElementById('fileInput');
 const resultsEl = document.getElementById('results');
 const samplePreview = document.getElementById('samplePreview');
 const summaryLine = document.getElementById('summaryLine');
+const promoPop = document.getElementById('promoPop');
+const promoMsg = document.getElementById('promoMsg');
 
 function makeCard(fileName) {
   const card = document.createElement('div');
@@ -1210,12 +1230,13 @@ async function handleFiles(fileList) {
     tasks.push({ id, file });
   }
   totalFiles += tasks.length;
+  let batchWarnFiles = 0;
 
   await runChecks(tasks, DEFAULT_CHECK_OPTIONS, outcome => {
     const { card, thumbUrl } = cardById.get(outcome.id);
     if (outcome.result) {
       renderResult(card, thumbUrl, outcome.result, null);
-      if (outcome.result.hasWarning) totalWarnFiles++;
+      if (outcome.result.hasWarning) { totalWarnFiles++; batchWarnFiles++; }
     } else {
       renderResult(card, thumbUrl, null, '読み込みエラー：この画像は解析できませんでした');
     }
@@ -1229,6 +1250,15 @@ async function handleFiles(fileList) {
     summaryLine.classList.remove('has-warn');
     summaryLine.textContent = totalFiles + '枚とも、主要項目はOKでした。';
   }
+
+  // 結果が良くても悪くても、ツールの案内をポップ表示する
+  promoMsg.textContent = batchWarnFiles > 0
+    ? 'この気になる項目、Clipart ToolKit Proなら自動でクリアできます。'
+    : 'そのクオリティ、Clipart ToolKit Proなら毎回自動でキープできます。';
+  promoPop.hidden = false;
+  promoPop.classList.remove('pop');
+  void promoPop.offsetWidth; // アニメーションを毎回リスタートさせる
+  promoPop.classList.add('pop');
 }
 
 fileInput.addEventListener('change', e => handleFiles(e.target.files));
