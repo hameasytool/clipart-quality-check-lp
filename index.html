@@ -328,7 +328,7 @@
     </div></div>
     <div class="row"><img class="ico" src="images/icon-magnifier-map.png" alt=""><div>
       <h3>「たぶん大丈夫」を、なくす</h3>
-      <p>ここでチェックした「サイズ・DPI・余白・ゴミ・輪郭」の5項目を、作業のたびに毎回自動でクリアさせます。DPIは300dpiにきっちり変換、透過部分の小さなゴミも自動検出。「たぶん大丈夫」で出品する不安を、仕組みごとなくします。</p>
+      <p>ここでチェックした「サイズ・DPI・余白・ゴミ・輪郭」の5項目を、作業のたびに毎回自動でクリアさせます。DPIは300dpiにきっちり変換、透過部分の小さなゴミも自動検出。<strong>Clipart ToolKit Proで作成すれば、この5項目は問題なくクリアできます。</strong>「たぶん大丈夫」で出品する不安を、仕組みごとなくします。</p>
     </div></div>
     <div class="row"><img class="ico" src="images/icon-fox-compass.png" alt=""><div>
       <h3>売れてる形が、はじめから使える</h3>
@@ -1253,8 +1253,8 @@ async function handleFiles(fileList) {
 
   // 結果が良くても悪くても、ツールの案内をポップ表示する
   promoMsg.textContent = batchWarnFiles > 0
-    ? 'この気になる項目、Clipart ToolKit Proなら自動でクリアできます。'
-    : 'そのクオリティ、Clipart ToolKit Proなら毎回自動でキープできます。';
+    ? 'この気になる項目も、Clipart ToolKit Proで作成すれば問題なくクリアできます。'
+    : 'そのクオリティ、Clipart ToolKit Proで作成すれば毎回問題なくクリアできます。';
   promoPop.hidden = false;
   promoPop.classList.remove('pop');
   void promoPop.offsetWidth; // アニメーションを毎回リスタートさせる
